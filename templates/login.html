@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+<meta charset="UTF-8">
+
+{% block content %}
+<title>Авторизация</title>
+<span id="fh">
+    <form method="get" action="/registration">
+        <input type="submit" name="Регестрация" value="Registration" id="bn2">
+    </form>
+</span>
+<div class="col-8" style="margin-left: 33%; padding-top: 10px;">
+    <h1 style="position: fixed; z-index: 101;"> Форма авторизации: </h1>
+    <form action="" method="post" style="padding-top: 53px;">
+        {{ form.hidden_tag() }}
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                {{ form.login.label }}
+                {{ form.login(class="form-control", type="login") }}
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                {{ form.password.label }}
+                {{ form.password(class="form-control", type="password") }} <br/>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+
+                {{ form.remember_me() }}
+                {{ form.remember_me.label }}<br/>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+
+                {{ form.submit(type="submit", class="btn btn-primary") }}
+            </div>
+        </div>
+
+
+        <br/>
+    </form>
+</div>
+{% endblock %}
+</html>
