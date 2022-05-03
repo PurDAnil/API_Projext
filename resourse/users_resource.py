@@ -1,5 +1,3 @@
-import sqlite3
-
 from flask_restful import Resource, abort, reqparse
 from flask import jsonify
 from data import db_session

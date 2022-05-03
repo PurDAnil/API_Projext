@@ -14,7 +14,9 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     _login = sqlalchemy.Column(sqlalchemy.String, nullable=False, unique=True)
     nick = sqlalchemy.Column(sqlalchemy.String, default=_login)
     age = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
-    _password = sqlalchemy.Column(sqlalchemy.String)
+    _password = sqlalchemy.Column(sqlalchemy.String, nullable=False)
+    messages = sqlalchemy.Column(sqlalchemy.String, default=None)
+    blocked = sqlalchemy.Column(sqlalchemy.String, default=None)
     modified_date = sqlalchemy.Column(sqlalchemy.String, default=datetime.now().strftime('%d.%B.%Y'))
 
     @property

@@ -1,3 +1,5 @@
+import json
+
 import requests
 from flask import Flask, render_template, redirect
 from flask_restful import Api, abort
@@ -59,11 +61,9 @@ def registration():
 
     if form.validate_on_submit():
 
-        print(form.age.data)
-
         sess = db_session.create_session()
         if sess.query(User).filter(User._login == form.login.data).first():
-            return render_template("reg.html", form=form, error=errors[3])
+            return render_template("reg.html", form=form, error=errors[2])
         try:
             if form.password1.data == form.password2.data:
                 my_data = {
@@ -72,7 +72,7 @@ def registration():
                     'age': int(form.age.data),
                     'password': form.password1.data
                 }
-                print(requests.post(url='http://127.0.0.1:5000/data/users', data=my_data).json())
+                requests.post(url='http://127.0.0.1:5000/data/users', data=my_data)
                 user = sess.query(User).filter(User._login == form.login.data).first()
                 if form.remember_me.data:
                     login_user(user, remember=form.remember_me.data)
