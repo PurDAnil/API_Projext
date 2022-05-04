@@ -16,6 +16,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     age = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
     _password = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     messages = sqlalchemy.Column(sqlalchemy.String, default=None)
+    not_read = sqlalchemy.Column(sqlalchemy.String, default=None)
     blocked = sqlalchemy.Column(sqlalchemy.String, default=None)
     modified_date = sqlalchemy.Column(sqlalchemy.String, default=datetime.now().strftime('%d.%B.%Y'))
 
@@ -42,6 +43,15 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     def login(self, open_text):
         if len(open_text) <= 20 and (open_text.isalnum() or open_text.isalpha()) and not open_text.isnumeric():
             self._login = open_text
+
+    def add_blocked_user(self, user_id):
+        if self.blocked:
+            self.blocked += ';' + str(user_id)
+        else:
+            self.blocked = str(user_id)
+
+    def user_data(self):
+        return f'{self.id}@{self.password}'
 
     def __repr__(self):
         return f"@{self.login} {self.nick} {self.age}"

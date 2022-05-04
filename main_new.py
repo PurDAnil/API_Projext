@@ -5,8 +5,9 @@ from flask import Flask, render_template, redirect
 from flask_restful import Api, abort
 
 from data import db_session
-from resourse import users_resource
+from resourse import users_resource, post_resource
 from data.user import User
+from data.post import Post
 from forms.login_form import LoginForm
 from forms.reg_form import RegForm
 from flask_login import login_user, LoginManager, current_user, logout_user
@@ -21,6 +22,8 @@ login_magager.init_app(app)
 def main():
     api.add_resource(users_resource.UsersListResource, '/data/users')
     api.add_resource(users_resource.UsersResource, '/data/users/<int:user_id>')
+    api.add_resource(post_resource.PostsListResource, '/data/posts/<user_data>')
+    api.add_resource(post_resource.PostsResource, '/data/posts/<user_data>/<int:post_id>')
     db_session.global_init('db/users.db')
     app.run()
 
@@ -97,9 +100,8 @@ def user_get(user_id):
         abort(404, message=f"User {user_id} not found")
 
 
-@app.route('/info/users/<user_login>')
+@app.route('/info/users/<string:user_login>')
 def user_login_get(user_login):
-    user_login = str(user_login)
     try:
         sess = db_session.create_session()
         user = sess.query(User).filter(User._login == user_login).first()
@@ -107,6 +109,11 @@ def user_login_get(user_login):
                                user_log=current_user.login)
     except:
         return redirect('/login')
+
+
+@app.route('/info/users/write_message')
+def user_login_get():
+    pass
 
 
 if __name__ == '__main__':

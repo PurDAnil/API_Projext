@@ -26,6 +26,8 @@ class Post(SqlAlchemyBase, UserMixin, SerializerMixin):
 
     @header.setter
     def header(self, open_text):
+        if not open_text:
+            open_text = 'Message'
         self._header = base64.b64encode(bytes(open_text, encoding='UTF-8'))
 
     @property
@@ -44,16 +46,6 @@ class Post(SqlAlchemyBase, UserMixin, SerializerMixin):
     def sender(self, open_text):
         sess = create_session()
         user = sess.query(User).filter(User._login == open_text).first()
-        if not user.messages:
-            user.messages = json.dumps({user.id: [self.id]})
-        else:
-            mess = json.loads(user.messages)
-            if user.id in mess.keys():
-                mess[user.id].append(self.id)
-                user.messages = json.dumps(mess)
-            else:
-                mess[user.id] = []
-                mess[user.id].append(self.id)
         sess.commit()
         self._sender = user.id
 
@@ -65,9 +57,22 @@ class Post(SqlAlchemyBase, UserMixin, SerializerMixin):
     def recipient(self, open_text):
         sess = create_session()
         user = sess.query(User).filter(User._login == open_text).first()
-        if str(self._sender) not in user.blocked.split(';'):
+        user1 = sess.query(User).filter(User.id == self._sender).first()
+        if (not user.blocked or str(self._sender) not in user.blocked.split(';')) or\
+                (not user1.blocked or str(user.id) not in user1.blocked.split(';')):
             if not user.messages:
-                user.messages = json.dumps({user.id: [self.id]})
+                user.messages = json.dumps({self._sender: [self.id]})
+            else:
+                mess = json.loads(user.messages)
+                if user.id in mess.keys():
+                    mess[self._sender].append(self.id)
+                    user.messages = json.dumps(mess)
+                else:
+                    mess[self._sender] = []
+                    mess[self._sender].append(self.id)
+
+            if not user1.messages:
+                user1.messages = json.dumps({user.id: [self.id]})
             else:
                 mess = json.loads(user.messages)
                 if user.id in mess.keys():
