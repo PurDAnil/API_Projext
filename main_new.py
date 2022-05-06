@@ -28,6 +28,7 @@ def main():
     app.run()
 
 
+
 @login_magager.user_loader
 def load_user(user_id):
     db_sess = db_session.create_session()
@@ -102,6 +103,14 @@ def user_get(user_id):
 
 @app.route('/info/users/<string:user_login>')
 def user_login_get(user_login):
+    data = {
+        'recipient': 'QWE',
+        'text': 'hugigiivututviuvuvy'
+    }
+
+    print(requests.post(
+        'http://127.0.0.1:5000/data/posts/4@pbkdf2:sha256:260000$pxprxHRTsPXeB5OE$af91a76becf43f4410d49029ebb37a09a593339d5891a77262db9d09e0148b6e',
+        data=data).json())
     try:
         sess = db_session.create_session()
         user = sess.query(User).filter(User._login == user_login).first()
@@ -112,7 +121,7 @@ def user_login_get(user_login):
 
 
 @app.route('/info/users/write_message')
-def user_login_get():
+def write_message():
     pass
 
 

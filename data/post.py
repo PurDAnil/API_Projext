@@ -56,6 +56,11 @@ class Post(SqlAlchemyBase, UserMixin, SerializerMixin):
     @recipient.setter
     def recipient(self, open_text):
         sess = create_session()
+        id_k = sess.query(Post).all()
+        if id_k:
+            self.id = id_k[-1].id + 1
+        else:
+            self.id = 1
         user = sess.query(User).filter(User._login == open_text).first()
         user1 = sess.query(User).filter(User.id == self._sender).first()
         if (not user.blocked or str(self._sender) not in user.blocked.split(';')) or\
@@ -64,22 +69,30 @@ class Post(SqlAlchemyBase, UserMixin, SerializerMixin):
                 user.messages = json.dumps({self._sender: [self.id]})
             else:
                 mess = json.loads(user.messages)
-                if user.id in mess.keys():
-                    mess[self._sender].append(self.id)
-                    user.messages = json.dumps(mess)
+                if str(self._sender) in mess.keys():
+                    mess[str(self._sender)].append(self.id)
                 else:
-                    mess[self._sender] = []
-                    mess[self._sender].append(self.id)
+                    mess[str(self._sender)] = []
+                    mess[str(self._sender)].append(self.id)
+                user.messages = json.dumps(mess)
 
             if not user1.messages:
                 user1.messages = json.dumps({user.id: [self.id]})
             else:
-                mess = json.loads(user.messages)
-                if user.id in mess.keys():
-                    mess[user.id].append(self.id)
-                    user.messages = json.dumps(mess)
+                mess = json.loads(user1.messages)
+                if str(user.id) in mess.keys():
+                    mess[str(user.id)].append(self.id)
                 else:
-                    mess[user.id] = []
-                    mess[user.id].append(self.id)
+                    mess[str(user.id)] = []
+                    mess[str(user.id)].append(self.id)
+                user1.messages = json.dumps(mess)
+            if not user.not_read:
+                user.not_read = self._sender
+            elif str(self._sender) not in user.not_read:
+                user.not_read += ';' + str(self._sender)
+            if not user1.not_read:
+                user1.not_read = user.id
+            elif str(user.id) not in user1.not_read:
+                user1.not_read += ';' + str(user.id)
             sess.commit()
             self._recipient = user.id
