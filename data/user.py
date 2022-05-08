@@ -50,6 +50,11 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
         if len(open_text) <= 20 and (open_text.isalnum() or open_text.isalpha()) and not open_text.isnumeric():
             self._login = open_text
 
+    def check_blocked(self, user_id):
+        if self.blocked and str(user_id) in self.blocked.split(';'):
+            return True
+        return False
+
     def add_blocked_user(self, user_id):
         sess = db_session.create_session()
         user = sess.query(User).filter(User.id == self.id).first()
@@ -105,7 +110,10 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
                 text = base64.b64decode(req['text']).decode('UTF-8')[:30]
                 if len(base64.b64decode(req['text']).decode('UTF-8')) > 30:
                     text += '...'
-                chats[i] = [user.nick, user.login, color, base64.b64decode(req['header']).decode('UTF-8'), text]
+                header = base64.b64decode(req['header']).decode('UTF-8')[:15]
+                if len(base64.b64decode(req['header']).decode('UTF-8')) > 15:
+                    text += '...'
+                chats[i] = [user.nick, user.login, color, header, text]
             sess.close()
             return chats
         except:
@@ -126,8 +134,12 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
             for i in messages:
                 req = requests.get(
                     url=f'http://127.0.0.1:5000/data/posts/{self.user_data()}/{i}').json()['GET'][0]['post']
+                if req['sender'] == self.id:
+                    sen = True
+                else:
+                    sen = False
                 mes = [base64.b64decode(req['header']).decode('UTF-8'), base64.b64decode(req['text']).decode('UTF-8'),
-                       req['modified_date']]
+                       req['modified_date'], sen]
                 mess.append(mes)
             chat = [user.nick, user.login, color, mess]
         except Exception as er:

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+<meta http-equiv="Refresh" content="15" />
 <div id="otstup"></div>
 <form method="get" action="/info/users/write_message" style="text-align: right;">
         <input type="submit" name="&#9998;Написать сообщение" value="&#9998;Написать сообщение" id="bn4">
@@ -7,7 +8,7 @@
 {% for i in chats %}
 <div id="mess" style="background: {{ i[2] }};">
     <h3 style="padding-left: 35px;">{{ i[0] }}</h3>
-    <a href="{{ i[1] }}" style="padding-left: 5px; font-size: 20px;">@{{ i[1] }}</a>
+    <a href="{{ i[1] }}?#begin" style="padding-left: 5px; font-size: 20px;">@{{ i[1] }}</a>
     <div style="margin-top: -40px;">
         <div style="text-align: right; margin-right: 30px; color: #295e00;">{{ i[3] }}</div>
         <div style="text-align: right; margin-right: 5px; color: #295e00;">{{ i[4] }}</div>

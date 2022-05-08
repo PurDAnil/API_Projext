@@ -1,21 +1,64 @@
 {% extends "base.html" %}
 {% block content %}
-<div id="otstup"></div>
-<form method="get" action="/info/users/{{ user_log }}" style="text-align: left;">
-        <input type="submit" name="&#9668;Вернуться к чатам" value="&#9668;Вернуться к чатам" id="bn3">
-</form>
-<div style="margin-left: 200px">
-    <h3 style="padding-left: 35px; position: fixed;">{{ chats[0] }}</h3>
-    <a href="{{ chats[1] }}" style="padding-left: 5px; font-size: 20px; position: fixed;">@{{ chats[1] }}</a>
-</div>
-{% if 0 %}
-{% for i in chats %}
-<div id="mess" style="background: {{ i[2] }};">
-    <div style="margin-top: -40px;">
-        <div style="text-align: right; margin-right: 30px; color: #295e00;">{{ i[3] }}</div>
-        <div style="text-align: right; margin-right: 5px; color: #295e00;">{{ i[4] }}</div>
+<meta http-equiv="Refresh" content="15">
+<div id="otstup">
+        <h3 style="margin-top: -30px; margin-left: 400px; color: {{ chats[2] }};">Чат с {{ chats[0] }}</h3>
+        <a href="{{ chats[1] }}" style="margin-left: 425px; font-size: 20px;">@{{ chats[1] }}</a>
     </div>
 </div>
-{% endfor %}
+<form method="get" action="/info/users/{{ user_log }}" style="text-align: left;">
+    <input type="submit" name="&#9668;Вернуться к чатам" value="&#9668;Вернуться к чатам" id="bn3">
+</form>
+<div style="margin-top: 45px;"></div>
+{% if chats[3] %}
+{% for i in chats[3] %}
+<div style="margin-top: 5px;"></div>
+{% if i[3] %}
+<div id="mess_block_r" style="background: #dae6e8; border-radius: 7px;">
+    <h5 style="margin-right: 30px;">{{ i[0] }}</h5>
+    {% for j in i[1].split('\r') %}
+    <div style="font-size: 17px; padding-right: 5px; padding-left: 5px;">{{ j }}</div>
+    {% endfor %}
+    <div style="margin-right: 10px; color: grey; font-size: 13px;">{{ i[2] }}</div>
+</div>
+{% else %}
+<div id="mess_block_l" style="background: #dae6e8; border-radius: 7px;">
+    <h5 style="margin-right: 30px;">{{ i[0] }}</h5>
+    {% for j in i[1].split('\r') %}
+    <div style="font-size: 17px; padding-right: 5px; padding-left: 5px;">{{ j }}</div>
+    {% endfor %}
+    <div style="margin-right: 10px; color: grey; font-size: 13px;">{{ i[2] }}</div>
+</div>
 {% endif %}
+{% endfor %}
+{% else %}
+<h1 style="text-align: center; color: grey; margin-top: 10%;">Сообщений нет</h1>
+{% endif %}
+<div style="margin-bottom: 180px;"></div>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+
+    <div style="background: #dae6e8; margin-top: 20px; position: fixed; bottom: 0; right: 0; left: 0;">
+        <div style="margin-top: 20px; padding-left: 5%; display:inline-block;">
+            {{ form.header1.label }}
+            {{ form.header1(class="form-control", type="header1") }}
+        </div>
+        {% if chats[2] != '#ff7878' %}
+        <div style="margin-top: 20px; padding-left: 60%; display:inline-block;">
+            {{ form.submit(type="submit", class="btn btn-primary able") }}
+        </div>
+        {% else %}
+        <div style="margin-top: 20px; padding-left: 60%; display:inline-block;">
+            {{ form.submit(type="submit", class="btn btn-primary disabled") }}
+            <div id="er">{{ error }}</div>
+        </div>
+        {% endif %}
+        <div style="padding-left: 40%; margin-top: -75px;">
+            {{ form.text.label }}
+            {{ form.text(class="form-control", type="text") }}
+        </div>
+        <div style="height: 20px;"></div>
+    </div>
+</form>
+<a id="begin"></a>
 {% endblock %}

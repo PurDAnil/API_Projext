@@ -2,7 +2,7 @@ from data.user import User
 from data.db_session import create_session
 from flask_wtf import FlaskForm
 from flask_wtf.file import DataRequired
-from wtforms import SubmitField, BooleanField, TextAreaField, StringField
+from wtforms import SubmitField, TextAreaField, StringField
 from wtforms.validators import Length, ValidationError
 
 
@@ -17,5 +17,5 @@ class MessForm(FlaskForm):
     recipient = StringField('Тег получателя', validators=[DataRequired(), Length(max=30), rec_check])
     header1 = StringField('Заголовок', validators=[Length(max=15)])
     text = TextAreaField('Сообщение', validators=[DataRequired(), Length(max=1000)],
-                       render_kw=dict(style='height: 100px; display: block;'))
+                         render_kw=dict(style='height: 100px; display: block;'))
     submit = SubmitField('Отправить')

@@ -10,6 +10,7 @@ from data.user import User
 from forms.login_form import LoginForm
 from forms.reg_form import RegForm
 from forms.message_form import MessForm
+from forms.chat_form import ChatForm
 from flask_login import login_user, LoginManager, current_user, logout_user
 
 app = Flask(__name__)
@@ -104,8 +105,9 @@ def user_get(user_id):
         abort(404, message=f"User {user_id} not found")
 
 
-@app.route('/info/users/<string:user_login>')
+@app.route('/info/users/<string:user_login>', methods=["GET", "POST"])
 def user_login_get(user_login):
+    errors = ['Вы заблокированы у этого пользователя']
     try:
         sess = db_session.create_session()
         user = sess.query(User).filter(User._login == user_login).first()
@@ -114,12 +116,26 @@ def user_login_get(user_login):
             return render_template('home_page.html', title='User: @' + user.login, user_nick=current_user.nick,
                                    user_log=current_user.login, chats=chats)
         else:
+            form = ChatForm()
+            form.blocked.data = current_user.check_blocked(user.id)
             chats = current_user.get_chat(user.id)
-            print(chats)
             current_user.read_message(user.id)
+            if form.validate_on_submit():
+                my_data = {
+                    'sender': current_user.login,
+                    'recipient': user.login,
+                    'header': form.header1.data,
+                    'text': form.text.data
+                }
+                check = requests.post(url=f'http://127.0.0.1:5000/data/posts/{current_user.user_data()}',
+                                      data=my_data).json()['POST']
+                chats = current_user.get_chat(user.id)
+                return redirect(f'{user.login}#begin')
             return render_template('chat.html', title='User: @' + user.login, user_nick=current_user.nick,
-                                   user_log=current_user.login, chats=chats)
-    except:
+                                   user_log=current_user.login, chats=chats, form=form)
+
+    except Exception as er:
+        print(er)
         return redirect('/login')
 
 

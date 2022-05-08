@@ -30,7 +30,7 @@ class PostsResource(Resource):
             user = session.query(User).filter(User.id == user_data[0]).first()
             if post.sender != post.recipient and user.password == user_data[1]:
                 return jsonify(
-                    {'GET': [{'post': post.to_dict(only=('id', 'header', 'text', 'modified_date'))}]})
+                    {'GET': [{'post': post.to_dict(only=('sender', 'header', 'text', 'modified_date'))}]})
             else:
                 not_found('GET', post_id)
         else:
