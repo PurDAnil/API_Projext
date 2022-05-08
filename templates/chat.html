@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="otstup"></div>
+<form method="get" action="/info/users/{{ user_log }}" style="text-align: left;">
+        <input type="submit" name="&#9668;Вернуться к чатам" value="&#9668;Вернуться к чатам" id="bn3">
+</form>
+<div style="margin-left: 200px">
+    <h3 style="padding-left: 35px; position: fixed;">{{ chats[0] }}</h3>
+    <a href="{{ chats[1] }}" style="padding-left: 5px; font-size: 20px; position: fixed;">@{{ chats[1] }}</a>
+</div>
+{% if 0 %}
+{% for i in chats %}
+<div id="mess" style="background: {{ i[2] }};">
+    <div style="margin-top: -40px;">
+        <div style="text-align: right; margin-right: 30px; color: #295e00;">{{ i[3] }}</div>
+        <div style="text-align: right; margin-right: 5px; color: #295e00;">{{ i[4] }}</div>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}

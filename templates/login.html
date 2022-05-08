@@ -5,6 +5,11 @@
 <meta charset="UTF-8">
 
 {% block content %}
+<style>
+        body {
+            background-color: #E0FFFF;
+        }
+</style>
 <title>Авторизация</title>
 <span id="fh">
     <form method="get" action="/registration">
@@ -13,7 +18,7 @@
 </span>
 <div class="col-8" style="margin-left: 33%; padding-top: 10px;">
     <h1 style="position: fixed; z-index: 101;"> Форма авторизации: </h1>
-    <form action="" method="post" style="padding-top: 53px;">
+    <form action="" method="post" style="padding-top: 93px;">
         {{ form.hidden_tag() }}
 
         <div class="form-row">

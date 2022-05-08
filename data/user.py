@@ -1,5 +1,10 @@
 from datetime import datetime
 import sqlalchemy
+import requests
+import base64
+import json
+
+from . import db_session
 from .db_session import SqlAlchemyBase
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -18,7 +23,8 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     messages = sqlalchemy.Column(sqlalchemy.String, default=None)
     not_read = sqlalchemy.Column(sqlalchemy.String, default=None)
     blocked = sqlalchemy.Column(sqlalchemy.String, default=None)
-    modified_date = sqlalchemy.Column(sqlalchemy.String, default=datetime.now().strftime('%d.%B.%Y'))
+    last = sqlalchemy.Column(sqlalchemy.String, default='')
+    reg_date = sqlalchemy.Column(sqlalchemy.String, default=datetime.now().strftime('%d.%B.%Y'))
 
     @property
     def password(self):
@@ -45,13 +51,90 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
             self._login = open_text
 
     def add_blocked_user(self, user_id):
-        if self.blocked:
-            self.blocked += ';' + str(user_id)
-        else:
-            self.blocked = str(user_id)
+        sess = db_session.create_session()
+        user = sess.query(User).filter(User.id == self.id).first()
+        if not user.blocked or str(user_id) not in user.blocked.split(';'):
+            if user.blocked:
+                user.blocked += ';' + str(user_id)
+            else:
+                user.blocked = str(user_id)
+        sess.commit()
+
+    def del_blocked_user(self, user_id):
+        sess = db_session.create_session()
+        user = sess.query(User).filter(User.id == self.id).first()
+        if user.blocked and str(user_id) in user.blocked.split(';'):
+            blocked = []
+            for i in user.blocked.split(';'):
+                if i != str(user_id):
+                    blocked.append(i)
+            user.blocked = ';'.join(blocked)
+        sess.commit()
 
     def user_data(self):
         return f'{self.id}@{self.password}'
+
+    def read_message(self, user_id: int):
+        sess = db_session.create_session()
+        user = sess.query(User).filter(User.id == self.id).first()
+        user_id = str(user_id)
+        if user_id in user.not_read.split(';'):
+            not_read = user.not_read.split(';')
+            not_read1 = []
+            for i in not_read:
+                if i != user_id:
+                    not_read1.append(i)
+            user.not_read = ';'.join(not_read1)
+        sess.commit()
+
+    def get_chats(self):
+        try:
+            chats = [int(i) for i in self.last.split(';')]
+            chats.reverse()
+            sess = db_session.create_session()
+            for i, el in enumerate(chats):
+                user = sess.query(User).filter(User.id == el).first()
+                if self.not_read and str(el) in self.not_read.split(';'):
+                    color = '#78aeff'
+                elif self.blocked and str(el) in self.blocked.split(';'):
+                    color = '#ff7878'
+                else:
+                    color = '#b5b5b5'
+                req = requests.get(url=f'http://127.0.0.1:5000/data/posts/{self.user_data()}/'
+                                       f'{json.loads(self.messages)[str(el)][-1]}').json()['GET'][0]['post']
+                text = base64.b64decode(req['text']).decode('UTF-8')[:30]
+                if len(base64.b64decode(req['text']).decode('UTF-8')) > 30:
+                    text += '...'
+                chats[i] = [user.nick, user.login, color, base64.b64decode(req['header']).decode('UTF-8'), text]
+            sess.close()
+            return chats
+        except:
+            return [['У вас нет сообщений', self._login, '#78aeff', '', '']]
+
+    def get_chat(self, user_id):
+        sess = db_session.create_session()
+        user = sess.query(User).filter(User.id == user_id).first()
+        try:
+            if self.not_read and str(user_id) in self.not_read.split(';'):
+                color = '#78aeff'
+            elif self.blocked and str(user_id) in self.blocked.split(';'):
+                color = '#ff7878'
+            else:
+                color = '#b5b5b5'
+            messages = json.loads(self.messages)[str(user_id)]
+            mess = []
+            for i in messages:
+                req = requests.get(
+                    url=f'http://127.0.0.1:5000/data/posts/{self.user_data()}/{i}').json()['GET'][0]['post']
+                mes = [base64.b64decode(req['header']).decode('UTF-8'), base64.b64decode(req['text']).decode('UTF-8'),
+                       req['modified_date']]
+                mess.append(mes)
+            chat = [user.nick, user.login, color, mess]
+        except Exception as er:
+            print(er)
+            chat = [user.nick, user.login, '#78aeff', []]
+        sess.close()
+        return chat
 
     def __repr__(self):
         return f"@{self.login} {self.nick} {self.age}"

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="col-8" style="margin-left: 33%; padding-top: 10px;">
+    <h1 style="position: fixed; z-index: 101;"> Форма сообщения: </h1>
+    <div id="otstup"></div>
+    <form method="get" action="/info/users/{{ user_log }}"
+          style="text-align: left; margin-left: -53%; margin-top: -9px">
+        <input type="submit" name="&#9668;Вернуться к чатам" value="&#9668;Вернуться к чатам" id="bn3">
+    </form>
+    <form action="" method="post" style="padding-top: 40px; z-index: 101;">
+        {{ form.hidden_tag() }}
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                {{ form.recipient.label }}
+                {{ form.recipient(class="form-control", type="recipient") }}
+            </div>
+        </div>
+        <div id="er" style="margin-top: -15px;">
+            {{ error }}
+            {% if error == 'Чат заблокирован' %}
+            <a href="{{ form.recipient.data }}">@{{ form.recipient.data }}</a>
+            {% endif %}
+            {% for er in form.recipient.errors %}
+            {{ er }}
+            {% endfor %}
+        </div>
+
+        <div class="form-row" style="margin-top: 10px;">
+            <div class="form-group col-md-6">
+                {{ form.header1.label }}
+                {{ form.header1(class="form-control", type="recipient") }}
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                {{ form.text.label }}
+                {{ form.text(class="form-control", type="recipient") }}
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                {{ form.submit(type="submit", class="btn btn-primary") }}
+            </div>
+        </div>
+        <br/>
+    </form>
+</div>
+{% endblock %}
