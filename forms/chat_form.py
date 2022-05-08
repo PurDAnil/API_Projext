@@ -8,6 +8,6 @@ class ChatForm(FlaskForm):
     blocked = BooleanField('Обновлять страницу?', default=True)
     header1 = StringField('Заголовок', validators=[Length(max=30)],
                           render_kw=dict(style='width: 200%; display: block;'))
-    text = TextAreaField('Сообщение', validators=[DataRequired(), Length(max=1000)],
+    text = TextAreaField('Сообщение', validators=[DataRequired(), Length(max=200)],
                          render_kw=dict(style='width: 65%; height: 100px; display: block; resize: none;'))
     submit = SubmitField('Отправить')

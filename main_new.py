@@ -1,8 +1,6 @@
-import json
-
 import requests
 from flask import Flask, render_template, redirect
-from flask_restful import Api, abort
+from flask_restful import Api, abort, reqparse
 
 from data import db_session
 from resourse import users_resource, post_resource
@@ -12,6 +10,10 @@ from forms.reg_form import RegForm
 from forms.message_form import MessForm
 from forms.chat_form import ChatForm
 from flask_login import login_user, LoginManager, current_user, logout_user
+
+parser = reqparse.RequestParser()
+parser.add_argument('header')
+parser.add_argument('text')
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'my_project_secret_key_ppooiizzxxcc'
@@ -105,7 +107,7 @@ def user_get(user_id):
         abort(404, message=f"User {user_id} not found")
 
 
-@app.route('/info/users/<string:user_login>', methods=["GET", "POST"])
+@app.route('/info/users/<string:user_login>', methods=["GET", "POST"],)
 def user_login_get(user_login):
     errors = ['Вы заблокированы у этого пользователя']
     try:
@@ -117,6 +119,9 @@ def user_login_get(user_login):
                                    user_log=current_user.login, chats=chats)
         else:
             form = ChatForm()
+            args = parser.parse_args()
+            form.text.data = args['text']
+            form.header1.data = args['header']
             form.blocked.data = current_user.check_blocked(user.id)
             chats = current_user.get_chat(user.id)
             current_user.read_message(user.id)
@@ -129,7 +134,6 @@ def user_login_get(user_login):
                 }
                 check = requests.post(url=f'http://127.0.0.1:5000/data/posts/{current_user.user_data()}',
                                       data=my_data).json()['POST']
-                chats = current_user.get_chat(user.id)
                 return redirect(f'{user.login}#begin')
             return render_template('chat.html', title='User: @' + user.login, user_nick=current_user.nick,
                                    user_log=current_user.login, chats=chats, form=form)
