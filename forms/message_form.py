@@ -15,7 +15,7 @@ class MessForm(FlaskForm):
             raise ValidationError('Пользователь с такм тегом не найден')
 
     recipient = StringField('Тег получателя', validators=[DataRequired(), Length(max=30), rec_check])
-    header1 = StringField('Заголовок', validators=[Length(max=15)])
+    header1 = StringField('Заголовок', validators=[Length(max=30)])
     text = TextAreaField('Сообщение', validators=[DataRequired(), Length(max=1000)],
                          render_kw=dict(style='height: 100px; display: block;'))
     submit = SubmitField('Отправить')

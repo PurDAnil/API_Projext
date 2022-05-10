@@ -112,7 +112,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
                     text += '...'
                 header = base64.b64decode(req['header']).decode('UTF-8')[:15]
                 if len(base64.b64decode(req['header']).decode('UTF-8')) > 15:
-                    text += '...'
+                    header += '...'
                 chats[i] = [user.nick, user.login, color, header, text]
             sess.close()
             return chats

@@ -11,10 +11,6 @@ from forms.message_form import MessForm
 from forms.chat_form import ChatForm
 from flask_login import login_user, LoginManager, current_user, logout_user
 
-parser = reqparse.RequestParser()
-parser.add_argument('header')
-parser.add_argument('text')
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'my_project_secret_key_ppooiizzxxcc'
 api = Api(app)
@@ -119,9 +115,6 @@ def user_login_get(user_login):
                                    user_log=current_user.login, chats=chats)
         else:
             form = ChatForm()
-            args = parser.parse_args()
-            form.text.data = args['text']
-            form.header1.data = args['header']
             form.blocked.data = current_user.check_blocked(user.id)
             chats = current_user.get_chat(user.id)
             current_user.read_message(user.id)
@@ -164,7 +157,7 @@ def write_message():
                     }
                     check = requests.post(url=f'http://127.0.0.1:5000/data/posts/{current_user.user_data()}',
                                           data=my_data).json()['POST']
-                    return redirect('/info/users/' + form.recipient.data)
+                    return redirect('/info/users/' + form.recipient.data + '?#begin')
                 except:
                     return render_template('message.html', title='Написать сообщение', user_log=current_user.login,
                                            user_nick=current_user.nick, form=form, error=errors[1])
